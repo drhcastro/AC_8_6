@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Alimentación complementaria 6 a 8 meses - Dr. Héctor Castro</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    h1, h2 { text-align: center; }
+    label { display: inline-block; margin: 5px 0; }
+    select { margin-bottom: 10px; }
+    table { margin: 20px auto; border-collapse: collapse; width: 90%; }
+    table, th, td { border: 1px solid #333; }
+    th, td { padding: 5px 10px; text-align: center; }
+    .week-section { border: 1px solid #aaa; padding: 10px; margin-bottom: 20px; }
+    /* Botón de WhatsApp */
+    #whatsapp-btn {
+      display: block;
+      width: 250px;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #25d366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    /* Botón Guardar menú (estilo similar al de WhatsApp, pero en color #5dade2) */
+    #guardar-menu-btn {
+      display: block;
+      width: 250px;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #5dade2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+  <!-- Incluir html2canvas vía CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <h1>Alimentación complementaria 6 a 8 meses</h1>
+  <h2>Dr. Héctor Castro</h2>
+
+  <!-- Botón de WhatsApp -->
+  <a id="whatsapp-btn" href="https://api.whatsapp.com/send?phone=526676931351" target="_blank">
+    Whatsapp Dr. Héctor Castro
+  </a>
+
+  <!-- Sección de selección de mes, semana y alimentos -->
+  <div id="form-container">
+    <!-- Selección de MES -->
+    <label for="month">Elige MES:</label>
+    <select id="month"></select>
+    <br>
+    <!-- Selección de SEMANA (general) -->
+    <label for="week">Elige SEMANA:</label>
+    <select id="week"></select>
+    <br>
+    <hr>
+
+    <!-- Semana 1 -->
+    <div class="week-section">
+      <h3>Semana 1</h3>
+      <label for="week1-cereal">Elegir Cereal:</label>
+      <select id="week1-cereal"></select>
+      <br>
+      <label for="week1-fruta">Elegir Fruta:</label>
+      <select id="week1-fruta"></select>
+      <br>
+      <label for="week1-vegetal">Elegir Vegetal:</label>
+      <select id="week1-vegetal"></select>
+      <br>
+      <label for="week1-proteina">Elegir Proteína:</label>
+      <select id="week1-proteina"></select>
+    </div>
+
+    <!-- Semana 2 -->
+    <div class="week-section">
+      <h3>Semana 2</h3>
+      <p><em>NO REPETIR MISMOS ALIMENTOS DE SEMANA ANTERIOR</em></p>
+      <label for="week2-cereal">Elegir Cereal:</label>
+      <select id="week2-cereal"></select>
+      <br>
+      <label for="week2-fruta">Elegir Fruta:</label>
+      <select id="week2-fruta"></select>
+      <br>
+      <label for="week2-vegetal">Elegir Vegetal:</label>
+      <select id="week2-vegetal"></select>
+      <br>
+      <label for="week2-proteina">Elegir Proteína:</label>
+      <select id="week2-proteina"></select>
+    </div>
+
+    <!-- Semana 3 -->
+    <div class="week-section">
+      <h3>Semana 3</h3>
+      <p><em>NO REPETIR MISMOS ALIMENTOS DE SEMANA ANTERIOR</em></p>
+      <label for="week3-cereal">Elegir Cereal:</label>
+      <select id="week3-cereal"></select>
+      <br>
+      <label for="week3-fruta">Elegir Fruta:</label>
+      <select id="week3-fruta"></select>
+      <br>
+      <label for="week3-vegetal">Elegir Vegetal:</label>
+      <select id="week3-vegetal"></select>
+      <br>
+      <label for="week3-proteina">Elegir Proteína:</label>
+      <select id="week3-proteina"></select>
+    </div>
+
+    <!-- Semana 4 -->
+    <div class="week-section">
+      <h3>Semana 4</h3>
+      <p><em>NO REPETIR MISMOS ALIMENTOS DE SEMANA ANTERIOR</em></p>
+      <label for="week4-cereal">Elegir Cereal:</label>
+      <select id="week4-cereal"></select>
+      <br>
+      <label for="week4-fruta">Elegir Fruta:</label>
+      <select id="week4-fruta"></select>
+      <br>
+      <label for="week4-vegetal">Elegir Vegetal:</label>
+      <select id="week4-vegetal"></select>
+      <br>
+      <label for="week4-proteina">Elegir Proteína:</label>
+      <select id="week4-proteina"></select>
+    </div>
+
+    <button id="show-menu-btn">Mostrar menú de alimentos para el mes</button>
+  </div>
+
+  <!-- Aquí se mostrará el menú generado -->
+  <div id="menu-output"></div>
+
+  <!-- Botón Guardar menú (se muestra una vez generado el menú) -->
+  <button id="guardar-menu-btn" style="display:none;">Guardar menú</button>
+
+  <script>
+    // URL base de la API de SheetDB
+    const API_BASE = "https://sheetdb.io/api/v1/hk0jgt01ob5nx";
+
+    // Función para obtener los datos de una hoja determinada
+    async function fetchSheet(sheetName) {
+      const response = await fetch(API_BASE + "?sheet=" + sheetName);
+      const data = await response.json();
+      return data;
+    }
+
+    // Función para poblar un dropdown usando los datos obtenidos.
+    // Se asume que el valor a mostrar se encuentra en la propiedad "ColumnaA"
+    // Además, se asigna un color de fondo según el tipo de alimento.
+    function populateDropdown(selectId, data, key) {
+      const select = document.getElementById(selectId);
+      select.innerHTML = "";
+      data.forEach(item => {
+        const option = document.createElement("option");
+        // Si la propiedad key no existe, se usa la primera propiedad del objeto.
+        const valor = item[key] || item[Object.keys(item)[0]];
+        option.value = valor;
+        option.textContent = valor;
+        
+        // Asignar colores según el tipo (según el id del select)
+        if (selectId.includes("cereal")) {
+          option.style.backgroundColor = "yellow";
+        } else if (selectId.includes("fruta")) {
+          option.style.backgroundColor = "red";
+          option.style.color = "white";
+        } else if (selectId.includes("vegetal")) {
+          option.style.backgroundColor = "green";
+          option.style.color = "white";
+        } else if (selectId.includes("proteina")) {
+          option.style.backgroundColor = "purple";
+          option.style.color = "white";
+        }
+        select.appendChild(option);
+      });
+    }
+
+    // Al cargar la página se poblarán todos los dropdowns.
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        // MES: Datos desde la hoja "EDAD"
+        const edadData = await fetchSheet("EDAD");
+        populateDropdown("month", edadData, "ColumnaA");
+
+        // SEMANA: Datos desde la hoja "SEMANA"
+        const semanaData = await fetchSheet("SEMANA");
+        populateDropdown("week", semanaData, "ColumnaA");
+
+        // Opciones de alimentos (se supone que cada hoja tiene la opción en "ColumnaA")
+        const foodSheets = [
+          { sheet: "Cereales", key: "ColumnaA", ids: ["week1-cereal", "week2-cereal", "week3-cereal", "week4-cereal"] },
+          { sheet: "Frutas", key: "ColumnaA", ids: ["week1-fruta", "week2-fruta", "week3-fruta", "week4-fruta"] },
+          { sheet: "Vegetales", key: "ColumnaA", ids: ["week1-vegetal", "week2-vegetal", "week3-vegetal", "week4-vegetal"] },
+          { sheet: "Proteínas", key: "ColumnaA", ids: ["week1-proteina", "week2-proteina", "week3-proteina", "week4-proteina"] }
+        ];
+
+        for (const food of foodSheets) {
+          const foodData = await fetchSheet(food.sheet);
+          food.ids.forEach(id => populateDropdown(id, foodData, food.key));
+        }
+      } catch (e) {
+        console.error("Error al obtener los datos:", e);
+      }
+    });
+
+    // Arreglos de días y comidas
+    const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const meals = ["Desayuno", "Comida", "Cena"];
+
+    // Función para generar la tabla de menú para cada semana
+    // weekNumber: 1, 2, 3 o 4
+    // selections: objeto con las selecciones realizadas en cada semana.
+    function generateMenuTable(weekNumber, selections) {
+      // Definir el color de fondo según la semana
+      let bgColor = "";
+      if (weekNumber === 1) {
+        bgColor = "#fcf3cf";
+      } else if (weekNumber === 2) {
+        bgColor = "#eafaf1";
+      } else if (weekNumber === 3) {
+        bgColor = "#f4ecf7";
+      } else if (weekNumber === 4) {
+        bgColor = "#f4f6f6";
+      }
+      
+      let tableHTML = "<div style='background-color:" + bgColor + "; padding:10px; margin-bottom:20px;'>";
+      tableHTML += "<h3>Menú Semana " + weekNumber + "</h3>";
+      tableHTML += "<table>";
+      tableHTML += "<tr><th>Día</th><th>Desayuno</th><th>Comida</th><th>Cena</th></tr>";
+
+      // Para cada día se arman los alimentos según las condiciones:
+      for (let i = 0; i < days.length; i++) {
+        let foodItems = [];
+        if (weekNumber === 1) {
+          // Semana 1:
+          // – Siempre: Cereal de semana 1.
+          // – Martes a Domingo: Fruta de semana 1.
+          // – Jueves a Domingo: Vegetal de semana 1.
+          // – Viernes a Domingo: Proteína de semana 1.
+          foodItems.push(selections.week1.cereal);
+          if (i >= 1) { foodItems.push(selections.week1.fruta); }
+          if (i >= 3) { foodItems.push(selections.week1.vegetal); }
+          if (i >= 4) { foodItems.push(selections.week1.proteina); }
+        } else if (weekNumber === 2) {
+          // Semana 2:
+          // – Siempre: Cereal de semana 2.
+          // – Lunes: Fruta de semana 1; Martes a Domingo: Fruta de semana 2.
+          // – Lunes a Miércoles: Vegetal de semana 1; Jueves a Domingo: Vegetal de semana 2.
+          // – Lunes a Jueves: Proteína de semana 1; Viernes a Domingo: Proteína de semana 2.
+          foodItems.push(selections.week2.cereal);
+          foodItems.push(i === 0 ? selections.week1.fruta : selections.week2.fruta);
+          foodItems.push(i <= 2 ? selections.week1.vegetal : selections.week2.vegetal);
+          foodItems.push(i <= 3 ? selections.week1.proteina : selections.week2.proteina);
+        } else if (weekNumber === 3) {
+          // Semana 3:
+          // – Siempre: Cereal de semana 3.
+          // – Lunes: Fruta de semana 2; Martes a Domingo: Fruta de semana 3.
+          // – Lunes a Miércoles: Vegetal de semana 2; Jueves a Domingo: Vegetal de semana 3.
+          // – Lunes a Jueves: Proteína de semana 2; Viernes a Domingo: Proteína de semana 3.
+          foodItems.push(selections.week3.cereal);
+          foodItems.push(i === 0 ? selections.week2.fruta : selections.week3.fruta);
+          foodItems.push(i <= 2 ? selections.week2.vegetal : selections.week3.vegetal);
+          foodItems.push(i <= 3 ? selections.week2.proteina : selections.week3.proteina);
+        } else if (weekNumber === 4) {
+          // Semana 4:
+          // – Siempre: Cereal de semana 4.
+          // – Lunes: Fruta de semana 2; Martes a Domingo: Fruta de semana 4.
+          // – Lunes a Miércoles: Vegetal de semana 3; Jueves a Domingo: Vegetal de semana 4.
+          // – Lunes a Jueves: Proteína de semana 3; Viernes a Domingo: Proteína de semana 4.
+          foodItems.push(selections.week4.cereal);
+          foodItems.push(i === 0 ? selections.week2.fruta : selections.week4.fruta);
+          foodItems.push(i <= 2 ? selections.week3.vegetal : selections.week4.vegetal);
+          foodItems.push(i <= 3 ? selections.week3.proteina : selections.week4.proteina);
+        }
+
+        tableHTML += "<tr>";
+        tableHTML += "<td>" + days[i] + "</td>";
+        meals.forEach(meal => {
+          tableHTML += "<td>" + foodItems.join(" / ") + "</td>";
+        });
+        tableHTML += "</tr>";
+      }
+      tableHTML += "</table>";
+      tableHTML += "</div>";
+      return tableHTML;
+    }
+
+    // Al hacer clic en el botón se recogen las selecciones y se generan las tablas
+    document.getElementById("show-menu-btn").addEventListener("click", () => {
+      const selections = {
+        week1: {
+          cereal: document.getElementById("week1-cereal").value,
+          fruta: document.getElementById("week1-fruta").value,
+          vegetal: document.getElementById("week1-vegetal").value,
+          proteina: document.getElementById("week1-proteina").value
+        },
+        week2: {
+          cereal: document.getElementById("week2-cereal").value,
+          fruta: document.getElementById("week2-fruta").value,
+          vegetal: document.getElementById("week2-vegetal").value,
+          proteina: document.getElementById("week2-proteina").value
+        },
+        week3: {
+          cereal: document.getElementById("week3-cereal").value,
+          fruta: document.getElementById("week3-fruta").value,
+          vegetal: document.getElementById("week3-vegetal").value,
+          proteina: document.getElementById("week3-proteina").value
+        },
+        week4: {
+          cereal: document.getElementById("week4-cereal").value,
+          fruta: document.getElementById("week4-fruta").value,
+          vegetal: document.getElementById("week4-vegetal").value,
+          proteina: document.getElementById("week4-proteina").value
+        }
+      };
+
+      // Generar las tablas para cada semana
+      let outputHTML = "";
+      outputHTML += generateMenuTable(1, selections);
+      outputHTML += generateMenuTable(2, selections);
+      outputHTML += generateMenuTable(3, selections);
+      outputHTML += generateMenuTable(4, selections);
+
+      document.getElementById("menu-output").innerHTML = outputHTML;
+      // Mostrar el botón "Guardar menú"
+      document.getElementById("guardar-menu-btn").style.display = "block";
+    });
+
+    // Función para convertir el menú final en imagen y abrirla en una nueva ventana usando html2canvas
+    document.getElementById("guardar-menu-btn").addEventListener("click", () => {
+      const menuOutput = document.getElementById("menu-output");
+      html2canvas(menuOutput).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const newWindow = window.open("");
+        newWindow.document.write("<title>Imagen del menú</title>");
+        newWindow.document.write("<img src='" + imgData + "' alt='Menú generado'>");
+      }).catch(err => {
+        console.error("Error generando la imagen:", err);
+      });
+    });
+  </script>
+</body>
+</html>
